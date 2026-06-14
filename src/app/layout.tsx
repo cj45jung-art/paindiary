@@ -27,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body className="bg-slate-100 flex justify-center min-h-screen text-slate-950 font-sans antialiased">
+    <html lang="ko" suppressHydrationWarning>
+      <body className="bg-slate-100 flex justify-center min-h-screen text-slate-950 font-sans antialiased" suppressHydrationWarning>
         {/* Mobile Mock Container */}
         <div className="w-full max-w-md bg-slate-50 min-h-screen pb-24 shadow-2xl relative border-x border-slate-200 flex flex-col">
           {/* Header */}

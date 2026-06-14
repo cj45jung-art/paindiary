@@ -34,6 +34,14 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   
+  // Skip non-http/https requests (like chrome-extension://)
+  try {
+    const url = new URL(event.request.url);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+  } catch (err) {
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
