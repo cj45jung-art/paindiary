@@ -28,6 +28,9 @@ export interface Report {
   created_at: string;
   symptoms_summary: string;
   habits_analysis: string;
+  ai_model?: string;
+  analysis_type?: 'short' | 'long';
+  predicted_condition?: string;
 }
 
 export interface Product {
@@ -285,7 +288,9 @@ class DatabaseService {
   getProductsBySymptom(symptom: string): Product[] {
     const matches = DEFAULT_PRODUCTS.filter(p => p.target_symptom.toLowerCase() === symptom.toLowerCase());
     const general = DEFAULT_PRODUCTS.filter(p => p.target_symptom.toLowerCase() === 'general');
-    return [...matches, ...general].slice(0, 3); // top 3 recommendations
+    const combined = [...matches, ...general];
+    const unique = combined.filter((prod, index, self) => self.findIndex(p => p.id === prod.id) === index);
+    return unique.slice(0, 3); // top 3 recommendations
   }
 
   // Reset entire database to default seeds
