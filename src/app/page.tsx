@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import BodyMap from '@/components/BodyMap';
 import db, { PainRecord, User } from '@/lib/supabase';
+import { getPartLabel } from '@/lib/bodyParts';
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [records, setRecords] = useState<PainRecord[]>([]);
   
   // Form States
-  const [selectedPart, setSelectedPart] = useState<string>('Neck');
+  const [selectedPart, setSelectedPart] = useState<string>('Neck_Cervical');
   const [painLevel, setPainLevel] = useState<number>(5);
   const [sleepHours, setSleepHours] = useState<number>(6.5);
   const [postureRating, setPostureRating] = useState<number>(3);
@@ -60,17 +61,6 @@ export default function Dashboard() {
     return 'bg-rose-500';
   };
 
-  const getPartLabel = (part: string) => {
-    const labels: Record<string, string> = {
-      Head: '머리(두통)',
-      Neck: '목(거북목)',
-      Shoulder: '어깨',
-      Wrist: '손목(터널)',
-      Back: '허리/척추',
-      Knee: '무릎'
-    };
-    return labels[part] || part;
-  };
 
   return (
     <div className="space-y-6">

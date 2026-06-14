@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import db, { PainRecord, Report, Product } from '@/lib/supabase';
 import { generateAIReport } from '@/lib/reportGenerator';
 import Link from 'next/link';
+import { getBaseCategory, getPartLabel } from '@/lib/bodyParts';
 
 export default function ReportsPage() {
   const [records, setRecords] = useState<PainRecord[]>([]);
@@ -82,20 +83,29 @@ export default function ReportsPage() {
   const totalPosture = records.reduce((sum, r) => sum + r.posture_rating, 0);
   const avgPosture = records.length > 0 ? (totalPosture / records.length).toFixed(1) : '0';
 
-  // Count body part occurrences
-  const partCounts: Record<string, number> = {};
+  // Group by base category and collect details
+  const baseCounts: Record<string, number> = {};
+  const baseDetails: Record<string, Record<string, number>> = {};
+  
   records.forEach(r => {
-    partCounts[r.body_part] = (partCounts[r.body_part] || 0) + 1;
+    const base = getBaseCategory(r.body_part);
+    baseCounts[base] = (baseCounts[base] || 0) + 1;
+    
+    if (!baseDetails[base]) {
+      baseDetails[base] = {};
+    }
+    const label = getPartLabel(r.body_part);
+    baseDetails[base][label] = (baseDetails[base][label] || 0) + 1;
   });
 
   const getPartLabelInKorean = (part: string) => {
     const labels: Record<string, string> = {
-      Head: '두통',
-      Neck: '경추',
+      Head: '머리/두통',
+      Neck: '목(경추)',
       Shoulder: '어깨',
-      Wrist: '손목',
-      Back: '요추',
-      Knee: '무릎'
+      Wrist: '손목/손',
+      Back: '허리/척추',
+      Knee: '무릎/다리'
     };
     return labels[part] || part;
   };
@@ -127,23 +137,31 @@ export default function ReportsPage() {
       {/* Visual Chart Module */}
       {records.length > 0 && (
         <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-xs space-y-4">
-          <h3 className="text-xs font-bold text-slate-700">부위별 통증 빈도 및 위험률</h3>
-          <div className="space-y-3 pt-1">
-            {Object.entries(partCounts).map(([part, count]) => {
+          <h3 className="text-xs font-bold text-slate-700">대분류별 통증 빈도 및 세부 부위</h3>
+          <div className="space-y-4 pt-1">
+            {Object.entries(baseCounts).map(([base, count]) => {
               const percentage = Math.round((count / records.length) * 100);
+              const details = baseDetails[base] || {};
+              const detailsString = Object.entries(details)
+                .map(([lbl, cnt]) => `${lbl} ${cnt}회`)
+                .join(', ');
+
               return (
-                <div key={part} className="space-y-1">
+                <div key={base} className="space-y-1">
                   <div className="flex justify-between text-[11px] font-medium text-slate-600">
-                    <span>{getPartLabelInKorean(part)} 통증</span>
+                    <span className="font-bold text-slate-700">{getPartLabelInKorean(base)} 통증</span>
                     <span className="font-bold text-slate-800">{count}회 ({percentage}%)</span>
                   </div>
                   <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full ${
-                        part === 'Neck' || part === 'Back' ? 'bg-blue-500' : 'bg-indigo-500'
+                        base === 'Neck' || base === 'Back' ? 'bg-blue-500' : 'bg-indigo-500'
                       }`}
                       style={{ width: `${percentage}%` }}
                     />
+                  </div>
+                  <div className="text-[9px] text-slate-400 font-light pl-1">
+                    ↳ 세부 부위: {detailsString}
                   </div>
                 </div>
               );

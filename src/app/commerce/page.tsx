@@ -2,10 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import db, { Product } from '@/lib/supabase';
+import BodyMap from '@/components/BodyMap';
+import { getBaseCategory, getPartLabel } from '@/lib/bodyParts';
 
 export default function CommercePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
+  const [selectedPart, setSelectedPart] = useState<string>('');
+  const [showBodyMap, setShowBodyMap] = useState<boolean>(false);
 
   useEffect(() => {
     setProducts(db.getProducts());
@@ -37,6 +41,23 @@ export default function CommercePage() {
     return labels[part] || part;
   };
 
+  const handleBodyPartChange = (partId: string) => {
+    setSelectedPart(partId);
+    let base = getBaseCategory(partId);
+    
+    // Map categories that don't have direct products to closest category
+    if (base === 'Shoulder') {
+      base = 'Neck'; // Group Shoulder with Neck/Shoulder (목/어깨)
+    }
+    
+    setSelectedFilter(base);
+  };
+
+  const handleResetFilter = () => {
+    setSelectedFilter('All');
+    setSelectedPart('');
+  };
+
   return (
     <div className="space-y-6">
       {/* Intro Banner */}
@@ -45,24 +66,83 @@ export default function CommercePage() {
         <p className="text-xs text-slate-500">회원님의 통증 부위와 증상에 딱 맞는 최적의 기구 및 영양제 큐레이션</p>
       </div>
 
+      {/* Visual Search Toggle Button */}
+      <div className="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-2xs flex items-center justify-between">
+        <div className="space-y-0.5">
+          <h3 className="text-xs font-extrabold text-slate-800 flex items-center gap-1">
+            <span>🧍</span> 3D 신체 지도로 맞춤 상품 찾기
+          </h3>
+          <p className="text-[10px] text-slate-400 font-light">원하는 세부 관절/마디 부위를 직접 터치해 필터링해보세요.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowBodyMap(!showBodyMap)}
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+            showBodyMap
+              ? 'bg-blue-50 text-blue-600 border-blue-100'
+              : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 shadow-sm'
+          }`}
+        >
+          {showBodyMap ? '지도 접기 ✕' : '지도로 검색 ➔'}
+        </button>
+      </div>
+
+      {/* BodyMap Collapsible Section */}
+      {showBodyMap && (
+        <div className="p-4 bg-slate-50/50 rounded-3xl border border-slate-100 space-y-3 animate-fadeIn">
+          <div className="flex justify-between items-center px-1">
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">인터랙티브 맵 필터</span>
+            {selectedPart && (
+              <button
+                type="button"
+                onClick={handleResetFilter}
+                className="text-[10px] text-red-500 hover:underline font-bold"
+              >
+                필터 초기화 ↺
+              </button>
+            )}
+          </div>
+          <BodyMap selectedPart={selectedPart} onChange={handleBodyPartChange} />
+        </div>
+      )}
+
       {/* Filter Chips */}
-      <div className="flex space-x-1.5 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4">
-        {filterOptions.map((opt) => {
-          const isActive = selectedFilter === opt.key;
-          return (
+      <div className="space-y-2">
+        {selectedPart && (
+          <div className="bg-blue-50 border border-blue-100 rounded-xl px-3 py-2 text-xs text-blue-700 font-bold flex justify-between items-center animate-fadeIn">
+            <span>🎯 선택 부위: {getPartLabel(selectedPart)} ({getPartLabelInKorean(selectedFilter)} 상품 추천 중)</span>
             <button
-              key={opt.key}
-              onClick={() => setSelectedFilter(opt.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
-                isActive
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                  : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300'
-              }`}
+              type="button"
+              onClick={handleResetFilter}
+              className="text-blue-500 hover:text-blue-700 text-xs p-1"
             >
-              {opt.label}
+              ✕
             </button>
-          );
-        })}
+          </div>
+        )}
+        <div className="flex space-x-1.5 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4">
+          {filterOptions.map((opt) => {
+            const isActive = selectedFilter === opt.key && !selectedPart;
+            return (
+              <button
+                key={opt.key}
+                onClick={() => {
+                  setSelectedFilter(opt.key);
+                  setSelectedPart(''); // Reset detailed part when selecting broad filter chip
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
+                  isActive
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                    : selectedFilter === opt.key && selectedPart
+                      ? 'bg-blue-100 text-blue-700 border-blue-200'
+                      : 'bg-white text-slate-500 border-slate-100 hover:border-slate-300'
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Product List Grid */}
