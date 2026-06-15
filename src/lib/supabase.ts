@@ -145,49 +145,8 @@ const DEFAULT_USER: User = {
   created_at: new Date().toISOString()
 };
 
-// Simple Seeding for Demo records
-const SEED_RECORDS: PainRecord[] = [
-  {
-    id: 'rec-1',
-    user_id: 'usr-default',
-    pain_level: 6,
-    body_part: 'Neck',
-    sleep_hours: 5.5,
-    posture_rating: 3,
-    recorded_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-    notes: '하루 종일 듀얼 모니터 코딩 진행. 거북목 증상 심해짐.'
-  },
-  {
-    id: 'rec-2',
-    user_id: 'usr-default',
-    pain_level: 7,
-    body_part: 'Back',
-    sleep_hours: 6,
-    posture_rating: 2,
-    recorded_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    notes: '다리 꼬고 앉는 습관 때문에 허리 뻐근함.'
-  },
-  {
-    id: 'rec-3',
-    user_id: 'usr-default',
-    pain_level: 4,
-    body_part: 'Wrist',
-    sleep_hours: 7,
-    posture_rating: 4,
-    recorded_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    notes: '마우스 조작 시 오른쪽 손목 찌릿함 유발.'
-  },
-  {
-    id: 'rec-4',
-    user_id: 'usr-default',
-    pain_level: 8,
-    body_part: 'Neck',
-    sleep_hours: 5,
-    posture_rating: 2,
-    recorded_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    notes: '마감 하루 전 야근. 잠 부족하고 목덜미가 너무 뻣뻣함.'
-  }
-];
+// Simple Seeding for Demo records (Empty by default for clean start)
+const SEED_RECORDS: PainRecord[] = [];
 
 class DatabaseService {
   private isClient = typeof window !== 'undefined';

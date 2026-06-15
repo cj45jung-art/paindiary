@@ -11,7 +11,7 @@ export default function ReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [activeReport, setActiveReport] = useState<Report | null>(null);
-  
+
   // AI Config states
   const [selectedModel, setSelectedModel] = useState<string>('free');
   const [apiKey, setApiKey] = useState<string>('');
@@ -26,7 +26,7 @@ export default function ReportsPage() {
     const loadedReports = db.getReports();
     setRecords(loadedRecords);
     setReports(loadedReports);
-    
+
     if (loadedReports.length > 0) {
       setActiveReport(loadedReports[0]);
     }
@@ -56,7 +56,7 @@ export default function ReportsPage() {
       else if (activeReport.ai_summary.includes('손목')) symptom = 'Wrist';
       else if (activeReport.ai_summary.includes('두통')) symptom = 'Head';
       else if (activeReport.ai_summary.includes('무릎')) symptom = 'Knee';
-      
+
       setRecommendedProducts(db.getProductsBySymptom(symptom));
     } else {
       setRecommendedProducts(db.getProductsBySymptom('General'));
@@ -66,7 +66,7 @@ export default function ReportsPage() {
   const startFreeAnalysisWithAd = () => {
     setShowAdModal(true);
     setAdCountdown(5);
-    
+
     const interval = setInterval(() => {
       setAdCountdown((prev) => {
         if (prev <= 1) {
@@ -81,12 +81,12 @@ export default function ReportsPage() {
   const handleCompleteFreeAnalysis = () => {
     setShowAdModal(false);
     setIsGenerating(true);
-    
+
     setTimeout(() => {
       const generated = generateAIReport(records, 'weekly');
       generated.ai_model = '광고 후 무료 분석';
       const saved = db.saveReport(generated);
-      
+
       setReports(db.getReports());
       setActiveReport(saved);
       setIsGenerating(false);
@@ -118,7 +118,7 @@ export default function ReportsPage() {
         apiKey: apiKey.trim()
       });
       const saved = db.saveReport(generated);
-      
+
       setReports(db.getReports());
       setActiveReport(saved);
     } catch (err) {
@@ -127,7 +127,7 @@ export default function ReportsPage() {
       const local = generateAIReport(records, 'weekly');
       local.ai_model = `${selectedModel.toUpperCase()} (로컬 엔진 대체)`;
       const saved = db.saveReport(local);
-      
+
       setReports(db.getReports());
       setActiveReport(saved);
     } finally {
@@ -150,7 +150,7 @@ export default function ReportsPage() {
   // Generate statistics for charts
   const totalPain = records.reduce((sum, r) => sum + r.pain_level, 0);
   const avgPain = records.length > 0 ? (totalPain / records.length).toFixed(1) : '0';
-  
+
   const totalSleep = records.reduce((sum, r) => sum + r.sleep_hours, 0);
   const avgSleep = records.length > 0 ? (totalSleep / records.length).toFixed(1) : '0';
 
@@ -160,11 +160,11 @@ export default function ReportsPage() {
   // Group by base category and collect details
   const baseCounts: Record<string, number> = {};
   const baseDetails: Record<string, Record<string, number>> = {};
-  
+
   records.forEach(r => {
     const base = getBaseCategory(r.body_part);
     baseCounts[base] = (baseCounts[base] || 0) + 1;
-    
+
     if (!baseDetails[base]) {
       baseDetails[base] = {};
     }
@@ -228,9 +228,8 @@ export default function ReportsPage() {
                   </div>
                   <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full ${
-                        base === 'Neck' || base === 'Back' ? 'bg-blue-500' : 'bg-indigo-500'
-                      }`}
+                      className={`h-full rounded-full ${base === 'Neck' || base === 'Back' ? 'bg-blue-500' : 'bg-indigo-500'
+                        }`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
@@ -260,7 +259,7 @@ export default function ReportsPage() {
             <span>🧠 분석 AI 모델 선택</span>
             <span className="text-[9px] text-slate-400 font-normal">API Key 연동 시 실시간 정밀 연산</span>
           </div>
-          
+
           <div className="grid grid-cols-3 gap-2">
             {[
               { id: 'free', label: '📺 광고/무료', color: 'border-slate-200 text-slate-600 hover:border-slate-300' },
@@ -273,15 +272,14 @@ export default function ReportsPage() {
                   key={opt.id}
                   type="button"
                   onClick={() => handleSaveAiConfig(opt.id, apiKey)}
-                  className={`py-2 rounded-lg border text-[10px] font-extrabold text-center transition-all cursor-pointer ${
-                    isActive
-                      ? opt.id === 'free'
-                        ? 'bg-slate-900 border-slate-900 text-white shadow-xs'
-                        : opt.id === 'gpt'
-                          ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
-                          : 'bg-blue-600 border-blue-600 text-white shadow-xs'
-                      : 'bg-white ' + opt.color
-                  }`}
+                  className={`py-2 rounded-lg border text-[10px] font-extrabold text-center transition-all cursor-pointer ${isActive
+                    ? opt.id === 'free'
+                      ? 'bg-slate-900 border-slate-900 text-white shadow-xs'
+                      : opt.id === 'gpt'
+                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
+                        : 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                    : 'bg-white ' + opt.color
+                    }`}
                 >
                   {opt.label}
                 </button>
@@ -312,8 +310,10 @@ export default function ReportsPage() {
                 className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 bg-white placeholder:text-slate-300"
               />
               <p className="text-[8px] text-slate-400 font-light leading-normal">
-                ⚠️ API Key는 외부 서버로 전송되지 않고 회원님의 기기 브라우저(localStorage)에만 안전하게 보관됩니다.
+                ⚠️ API Key는 외부 서버로 전송되지 않고 회원님 브라우저(localStorage)에만 보관됩니다.
               </p>
+              <span className="text-[9px] text-slate-400 font-normal">*현재는 테스트용 Gemini API연동만 되어있습니다.(OpenAI API 연동 오류로 인해 보류)</span>
+
             </div>
           )}
         </div>
@@ -321,11 +321,10 @@ export default function ReportsPage() {
         <button
           onClick={handleGenerateReport}
           disabled={isGenerating}
-          className={`w-full font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center space-x-2 ${
-            isGenerating
-              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-              : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-98'
-          }`}
+          className={`w-full font-bold py-3.5 px-4 rounded-xl text-xs transition-all shadow-xs cursor-pointer flex items-center justify-center space-x-2 ${isGenerating
+            ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+            : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-98'
+            }`}
         >
           {isGenerating ? (
             <>
@@ -350,28 +349,27 @@ export default function ReportsPage() {
           <div className="bg-white rounded-2xl border-2 border-indigo-100 shadow-md p-5 space-y-4 relative overflow-hidden animate-fadeIn">
             {/* Watermark */}
             <div className="absolute right-4 top-4 text-4xl opacity-15">📜</div>
-            
+
             <div className="border-b border-slate-100 pb-3 space-y-2">
               <div className="flex flex-wrap gap-1.5">
                 <span className="text-[9px] bg-indigo-50 text-indigo-700 font-extrabold px-2 py-0.5 rounded-md border border-indigo-100">
                   {activeReport.report_type === 'weekly' ? '주간 헬스 진단' : '월간 헬스 진단'}
                 </span>
-                <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-md border ${
-                  activeReport.analysis_type === 'short'
-                    ? 'bg-teal-50 text-teal-700 border-teal-100'
-                    : 'bg-purple-50 text-purple-700 border-purple-100'
-                }`}>
+                <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-md border ${activeReport.analysis_type === 'short'
+                  ? 'bg-teal-50 text-teal-700 border-teal-100'
+                  : 'bg-purple-50 text-purple-700 border-purple-100'
+                  }`}>
                   {activeReport.analysis_type === 'short' ? '⚡ 단기 급성 분석' : '🔍 장기 정밀 분석'}
                 </span>
                 <span className="text-[9px] bg-slate-50 text-slate-600 font-extrabold px-2 py-0.5 rounded-md border border-slate-100">
                   🤖 {activeReport.ai_model || 'AI 엔진'}
                 </span>
               </div>
-              
+
               <h3 className="text-base font-black text-slate-800 mt-1">
                 종합 피드백 리포트
               </h3>
-              
+
               {activeReport.predicted_condition && (
                 <div className="mt-1.5 bg-rose-50 border border-rose-100 text-rose-800 rounded-xl px-3.5 py-2.5 text-left space-y-1">
                   <div className="text-[10px] font-bold text-rose-400">💡 예측된 주요 상태/질환</div>
@@ -437,7 +435,7 @@ export default function ReportsPage() {
               <h4 className="text-xs font-bold text-slate-800">🛍️ 증상 해결을 위한 AI 맞춤 추천 상품</h4>
               <Link href="/commerce" className="text-[10px] text-blue-600 hover:underline">더보기 →</Link>
             </div>
-            
+
             <div className="grid grid-cols-1 gap-3">
               {recommendedProducts.map((prod) => (
                 <a
@@ -480,11 +478,10 @@ export default function ReportsPage() {
                   <div
                     key={rep.id}
                     onClick={() => setActiveReport(rep)}
-                    className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                      activeReport.id === rep.id
-                        ? 'bg-indigo-50/50 border-indigo-200'
-                        : 'bg-white border-slate-100 hover:border-slate-200'
-                    }`}
+                    className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${activeReport.id === rep.id
+                      ? 'bg-indigo-50/50 border-indigo-200'
+                      : 'bg-white border-slate-100 hover:border-slate-200'
+                      }`}
                   >
                     <div className="space-y-1">
                       <div className="text-xs font-bold text-slate-700 flex items-center space-x-1">
@@ -499,7 +496,7 @@ export default function ReportsPage() {
                         발행: {new Date(rep.created_at).toLocaleDateString('ko-KR')}
                       </div>
                     </div>
-                    
+
                     <button
                       onClick={(e) => handleDeleteReport(rep.id, e)}
                       className="text-slate-300 hover:text-red-500 text-xs p-1"
@@ -522,12 +519,12 @@ export default function ReportsPage() {
 
       {/* Full-screen Ad Modal */}
       {showAdModal && (
-        <div 
+        <div
           className="fixed bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           style={{ top: 0, left: 0, right: 0, bottom: 0 }}
         >
           <div className="bg-white rounded-3xl border border-slate-100 max-w-sm w-full p-6 text-center space-y-6 shadow-2xl animate-scaleUp">
-            
+
             {/* Header */}
             <div className="space-y-1.5">
               <span className="text-[9px] bg-amber-50 text-amber-700 font-extrabold px-2.5 py-1 rounded-full border border-amber-100 inline-block animate-pulse">
@@ -537,7 +534,7 @@ export default function ReportsPage() {
                 건강한 직장생활을 위한 파트너 광고
               </h3>
               <p className="text-[10px] text-slate-400">
-                광고를 시청하시면 무료로 AI 정밀 분석이 완결됩니다.
+                광고를 시청하시면 무료로 AI 정밀 분석이 완결됩니다.(임시 페이지)
               </p>
             </div>
 
