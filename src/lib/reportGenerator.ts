@@ -306,7 +306,7 @@ ${JSON.stringify(formattedRecords, null, 2)}
     } else if (config.model.startsWith('gemini')) {
       // Gemini API Call
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${config.apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${config.apiKey}`,
         {
           method: 'POST',
           headers: {
@@ -336,7 +336,7 @@ ${JSON.stringify(formattedRecords, null, 2)}
       const parsed = JSON.parse(text.trim());
       return {
         ...parsed,
-        ai_model: 'Gemini 1.5 Flash',
+        ai_model: 'Gemini 3.5 Flash',
         analysis_type
       };
     } else {
