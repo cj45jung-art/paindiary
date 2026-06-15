@@ -274,8 +274,8 @@ ${JSON.stringify(formattedRecords, null, 2)}
 
   try {
     if (config.model.startsWith('gpt')) {
-      // OpenAI API Call
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      // OpenAI API Call via backend proxy
+      const response = await fetch('/api/openai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -293,7 +293,17 @@ ${JSON.stringify(formattedRecords, null, 2)}
       });
 
       if (!response.ok) {
-        throw new Error(`OpenAI HTTP error: ${response.status}`);
+        let errMsg = `OpenAI Proxy HTTP error: ${response.status}`;
+        try {
+          const errData = await response.json();
+          if (errData.error) {
+            errMsg += ` - ${errData.error}`;
+            if (errData.details) {
+              errMsg += ` (${JSON.stringify(errData.details)})`;
+            }
+          }
+        } catch {}
+        throw new Error(errMsg);
       }
 
       const resJson = await response.json();
@@ -304,31 +314,39 @@ ${JSON.stringify(formattedRecords, null, 2)}
         analysis_type
       };
     } else if (config.model.startsWith('gemini')) {
-      // Gemini API Call
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${config.apiKey}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  { text: systemPrompt + '\n\n' + userPrompt }
-                ]
-              }
-            ],
-            generationConfig: {
-              responseMimeType: 'application/json'
+      // Gemini API Call via backend proxy
+      const response = await fetch('/api/gemini', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.apiKey}`
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: systemPrompt + '\n\n' + userPrompt }
+              ]
             }
-          })
-        }
-      );
+          ],
+          generationConfig: {
+            responseMimeType: 'application/json'
+          }
+        })
+      });
 
       if (!response.ok) {
-        throw new Error(`Gemini HTTP error: ${response.status}`);
+        let errMsg = `Gemini Proxy HTTP error: ${response.status}`;
+        try {
+          const errData = await response.json();
+          if (errData.error) {
+            errMsg += ` - ${errData.error}`;
+            if (errData.details) {
+              errMsg += ` (${JSON.stringify(errData.details)})`;
+            }
+          }
+        } catch {}
+        throw new Error(errMsg);
       }
 
       const resJson = await response.json();

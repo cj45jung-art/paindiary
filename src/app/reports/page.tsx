@@ -310,9 +310,13 @@ export default function ReportsPage() {
                 className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-hidden focus:ring-1 focus:ring-indigo-500 bg-white placeholder:text-slate-300"
               />
               <p className="text-[8px] text-slate-400 font-light leading-normal">
-                ⚠️ API Key는 외부 서버로 전송되지 않고 회원님 브라우저(localStorage)에만 보관됩니다.
+                ⚠️ API Key는 외부 제3자에게 노출되지 않고 회원님의 브라우저(localStorage)에만 보관되며, API 요청 시 본 서비스의 자체 백엔드 보안 프록시(/api/openai 또는 /api/gemini)를 거쳐 안전하게 전달됩니다.
               </p>
-              <span className="text-[9px] text-slate-400 font-normal">*현재는 테스트용 Gemini API연동만 구현 되어있습니다.(OpenAI API 연동 오류로 인해 보류)</span>
+              {selectedModel === 'gpt' ? (
+                <span className="text-[9px] text-emerald-600 font-semibold">* OpenAI API 연동이 백엔드 보안 프록시를 통해 성공적으로 지원됩니다.</span>
+              ) : (
+                <span className="text-[9px] text-blue-600 font-semibold">* Google Gemini API 연동이 백엔드 보안 프록시를 통해 성공적으로 지원됩니다.</span>
+              )}
 
             </div>
           )}

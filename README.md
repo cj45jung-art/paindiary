@@ -37,7 +37,7 @@
 * **문제 배경**: 구글 Generative Language API 모델이 구형인 `gemini-1.5-flash`로 하드코딩되어 있어, 해당 모델 단종 이후 API 연동 시 `404 Not Found` 에러가 발생했습니다.
 * **수정 내용**:
   * `reportGenerator.ts` 내부의 호출 모델 식별자를 현재 공식 지원하는 최신 안정화 모델인 **`gemini-3.5-flash`**로 마이그레이션하여 실시간 AI 리포트 기능이 완벽히 동작하도록 보완했습니다.
-  * 단 OpenAI의 경우, 보안 정책상 브라우저단(Javascript client-side)에서 직접 API Key를 실어 요청하는 방식을 CORS 정책으로 완전 차단합니다. (이를 우회하려면 별도의 프록시 서버나 백엔드 서버가 필수적) - 그래서 OpenAI API 연동은 보류
+  * OpenAI 및 Google Gemini의 경우, 보안 정책 준수 및 브라우저 CORS 제한 우회를 위해 **Next.js Route Handler(자체 백엔드 프록시: `/api/openai` 및 `/api/gemini`)**를 도입하여 실시간 AI 분석 리포트가 안전하게 연동되도록 완료했습니다.
 
 
 ---
