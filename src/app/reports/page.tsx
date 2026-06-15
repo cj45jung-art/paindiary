@@ -312,7 +312,7 @@ export default function ReportsPage() {
               <p className="text-[8px] text-slate-400 font-light leading-normal">
                 ⚠️ API Key는 외부 서버로 전송되지 않고 회원님 브라우저(localStorage)에만 보관됩니다.
               </p>
-              <span className="text-[9px] text-slate-400 font-normal">*현재는 테스트용 Gemini API연동만 되어있습니다.(OpenAI API 연동 오류로 인해 보류)</span>
+              <span className="text-[9px] text-slate-400 font-normal">*현재는 테스트용 Gemini API연동만 구현 되어있습니다.(OpenAI API 연동 오류로 인해 보류)</span>
 
             </div>
           )}
