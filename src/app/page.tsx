@@ -10,7 +10,7 @@ export default function Dashboard() {
   const [records, setRecords] = useState<PainRecord[]>([]);
   
   // Form States
-  const [selectedPart, setSelectedPart] = useState<string>('Neck_Cervical');
+  const [selectedPart, setSelectedPart] = useState<string>('');
   const [painLevel, setPainLevel] = useState<number>(5);
   const [sleepHours, setSleepHours] = useState<number>(6.5);
   const [postureRating, setPostureRating] = useState<number>(3);
@@ -27,6 +27,11 @@ export default function Dashboard() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!selectedPart) {
+      alert('아픈 신체 부위를 인체지도에서 터치하여 선택해 주세요!');
+      return;
+    }
     
     const added = db.addRecord({
       pain_level: painLevel,
